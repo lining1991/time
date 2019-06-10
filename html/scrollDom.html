@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>scroll结构</title>
+    <style>
+        .main-content {
+            width: 400px;
+        }
+        .wrapper {
+            width: 100%;
+            overflow: hidden;
+            border-bottom: 1px solid #000;
+            margin-bottom: 80px;
+            background: #eee;
+        }
+        .wrapper-content {
+            float: left;
+            white-space: nowrap;
+            font-size: 0;
+        }
+        .wrapper-content .tab-item {
+            font-size: 14px;
+            display: inline-block;
+            padding: 10px 30px;
+        }
+        
+        .wrapper-content2 {
+            float: left;
+            display: flex;
+        }
+        .wrapper-content2 .tab-item {
+            float: left;
+            padding: 10px 30px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <p>用iScroll和better-scroll等一类的滚动插件时，做水平滑动时往往样式写不对，今天特地整理下</p>
+    <p>初始化的元素是wrapper</p>
+    <p>wrapper-content和tab-item的组合写法分别有两种</p>
+    <p>ps: 第二种写法父元素的display:flex配合子元素的float感觉很神奇 不是很能解释</p>
+    <div class="main-content">
+        <p>第一种写法</p>
+        <div class="wrapper">
+            <div class="wrapper-content">
+                <a href="" class="tab-item">tab一</a>
+                <a href="" class="tab-item">tab二</a>
+                <a href="" class="tab-item">tab三</a>
+                <a href="" class="tab-item">tab四</a>
+                <a href="" class="tab-item">tab五</a>
+                <a href="" class="tab-item">tab六</a>
+            </div>
+        </div>
+        <p>第二种写法</p>
+        <div class="wrapper">
+            <div class="wrapper-content2">
+                <a href="" class="tab-item">tab一</a>
+                <a href="" class="tab-item">tab二</a>
+                <a href="" class="tab-item">tab三三</a>
+                <a href="" class="tab-item">tab四</a>
+                <a href="" class="tab-item">tab五</a>
+                <a href="" class="tab-item">tab六</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
