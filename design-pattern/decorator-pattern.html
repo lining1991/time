@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>装饰者模式</title>
+</head>
+<body>
+    给对象动态地增加职责但又不改变对象。
+    <button id="button">点击我</button>
+    <script>
+    // 模拟传统对象语言的装饰者模式
+        var Plane = function(){};
+        Plane.prototype.fire = function(){
+            console.log('发射普通子弹')
+        }
+        // 增加两个装饰类
+        var MissileDecorator = function (plane) {
+            this.plane = plane;
+        }
+        MissileDecorator.prototype.fire = function () {
+            this.plane.fire();
+            console.log('发射导弹')
+        }
+        var AutoDecorator = function (plane) {
+            this.plane = plane;
+        }
+        AutoDecorator.prototype.fire = function () {
+            this.plane.fire();
+            console.log('发射原子')
+        }
+
+        // var autoDecorator = new AutoDecorator(new Plane());
+        // autoDecorator.fire();
+        var plane = new Plane();
+        plane = new MissileDecorator(plane);
+        plane = new AutoDecorator(plane);
+        plane.fire();
+    </script>
+    回到javascript的装饰者
+    <script>
+        window.onload = function() {
+            console.log('1');
+        }
+        var _onload = window.onload || function(){}
+        window.onload = function(){
+            _onload();
+            console.log(2);
+        }
+
+        var _getElementById = document.getElementById;
+        document.getElementById = function() {
+            console.log('this被劫持', this);
+            return _getElementById.call(document, arguments);
+        }
+        var button = document.getElementById('button');
+    </script>
+    <pre>
+     上述缺点：
+     1、必须维护_onload这个中间变量，而且一旦函数的装饰链很长或者需装饰还输变多，这些中间变量的数量会越来越多。
+     2、this被劫持的问题
+     </pre>
+     用AOP装饰函数
+</body>
+</html>
