@@ -11,8 +11,8 @@
     <button id="button">点击我</button>
     <script>
     // 模拟传统对象语言的装饰者模式
-        var Plane = function(){};
-        Plane.prototype.fire = function(){
+        var Plane = function () {};
+        Plane.prototype.fire = function () {
             console.log('发射普通子弹')
         }
         // 增加两个装饰类
@@ -40,11 +40,11 @@
     </script>
     回到javascript的装饰者
     <script>
-        window.onload = function() {
+        window.onload = function () {
             console.log('1');
         }
-        var _onload = window.onload || function(){}
-        window.onload = function(){
+        var _onload = window.onload || function (){}
+        window.onload = function (){
             _onload();
             console.log(2);
         }
@@ -61,6 +61,32 @@
      1、必须维护_onload这个中间变量，而且一旦函数的装饰链很长或者需装饰还输变多，这些中间变量的数量会越来越多。
      2、this被劫持的问题
      </pre>
-     用AOP装饰函数
+     用AOP（面向切面编程）装饰函数
+    <script>
+        // ? 对于参数不是很能理解
+        // 注意：return了两次 为什么哟啊第二次return呢是因为后边还有after 这样可以进行链式
+        Function.prototype.before = function (beforeFn) {
+            var _self = this;
+            return function () {
+                beforeFn.apply(_self, arguments);
+                _self.apply(this, arguments);
+            }
+        }
+
+        Function.prototype.after = function (afterFn) {
+
+        }
+    </script>
+    我们先来看看怎么用
+    <script>
+        var func = function () {
+            console.log(2);
+        }
+        var newFunc = func.before(function(){
+            console.log(1);
+        });
+        var t = newFunc();
+        console.log(t);
+    </script>
 </body>
 </html>
