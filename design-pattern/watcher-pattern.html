@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发布订阅模式（观察者模式）</title>
+</head>
+<body>
+定义对象间的一种一对多的依赖关系
+
+ps: 自己先写一个试试
+<script>
+    function Publisher () {}
+    Publisher.prototype.listener = {};
+    Publisher.prototype.addListener = function(eventName, funcb) {
+        let __self = this;
+        if (typeof funcb === 'function') {
+            if (!this.listener.eventName) {
+                this.listener.eventName = [];
+            } 
+            this.listener.eventName.push(funcb);
+            
+           
+        }
+        // this.listener.push(funcb);
+    }
+    Publisher.prototype.pub = function(eventName, data) {
+        let funcArr = this.listener.eventName;
+        if (funcArr.length) {
+            funcArr.forEach((fun, index) => {
+                fun(data);
+            });
+        }
+    }
+    let subscribe = new Publisher();
+    subscribe.addListener('click', function(data) {
+        console.log('data', data);
+    });
+    let puber = new Publisher();
+</script>
+</body>
+</html>
