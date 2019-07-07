@@ -39,5 +39,29 @@ ps: 自己先写一个试试
     });
     let puber = new Publisher();
 </script>
+书中所写
+<script>
+    var officer = {};
+    officer.listener = [];
+    // cb 一个个函数就是一个个订阅者
+    officer.addListener = function (cb) {
+        if (typeof cb === 'function') {
+            this.listener.push(cb);
+        }
+    }
+    officer.trigger = function() {
+        let __self = this;
+        let arg = arguments;
+        // 原书这里用的for循环
+        this.listener.forEach(function(func, index){
+            func.apply(__self, arg);
+        });
+    }
+    officer.addListener(function( price, squareMeter ){ // 小明订阅消息
+        console.log( '价格= ' + price );
+        console.log( 'squareMeter= ' + squareMeter );
+    });
+    officer.trigger('20', '1000');
+</script>
 </body>
 </html>
