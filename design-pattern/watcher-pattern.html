@@ -13,20 +13,19 @@ ps: 自己先写一个试试
 <script>
     function Publisher () {}
     Publisher.prototype.listener = {};
+    // 这里限定两个参数不好 应该不写形参 用arguments来取
     Publisher.prototype.addListener = function(eventName, funcb) {
         let __self = this;
         if (typeof funcb === 'function') {
-            if (!this.listener.eventName) {
+            if (!this.listener.eventName) { // 这俩地方写错啦 
                 this.listener.eventName = [];
             } 
             this.listener.eventName.push(funcb);
-            
-           
         }
         // this.listener.push(funcb);
     }
     Publisher.prototype.pub = function(eventName, data) {
-        let funcArr = this.listener.eventName;
+        let funcArr = this.listener.eventName;  // 这俩地方写错啦 
         if (funcArr.length) {
             funcArr.forEach((fun, index) => {
                 fun(data);
@@ -36,6 +35,9 @@ ps: 自己先写一个试试
     let subscribe = new Publisher();
     subscribe.addListener('click', function(data) {
         console.log('data', data);
+    });
+    subscribe.addListener('click', function(data) {
+        console.log('data2', data);
     });
     let puber = new Publisher();
 </script>
@@ -63,5 +65,65 @@ ps: 自己先写一个试试
     });
     officer.trigger('20', '1000');
 </script>
+<script>
+    // 通用写法
+    var event = {
+        clientList: {},
+        listen: function(key, fn){
+            if (!this.clientList[key]) {
+                this.clientList[key] = [];
+            }
+            this.clientList[key].push(fn);
+        },
+        trigger: function(){
+            let name = Array.prototype.shift.apply(arguments);
+            let fns = this.clientList[name];
+            if (fns && fns.length) {
+                for (var i =0, fn; fn = fns[i++];){ // 可选的for循环
+                    fn.apply(this, arguments);
+                }
+            }
+        },
+        remove: function(key, fn){
+            let fns = this.clientList[key];
+            if (!fns) {
+                console.log(`没有此事件(${key}）类型的订阅`);
+                return false;
+            }
+            if (!fn) {
+                fns && (fns.length = 0); // 前边已经检测过fns 为什么还要fns前置呢
+            }
+            // 好好体会下倒序遍历
+            for (var l = fns.length - 1; l>=0; l--;) {
+                var _fn = fns[l]
+                if (_fn === fn) { // 排断两个函数是否相等 这种场景下是可以认同是对的
+                // 因为添加订阅的时候也并没有考虑重复性 所以这里要全部遍历完
+                    fns.splice(l, 1);
+                }
+            }
+        }
+    }
+    // 再定义一个 installEvent 函数，这个函数可以给所有的对象都动态安装发布—订阅功能：
+    function installEvent(obj){
+        // 对象自身的以及可继承的 可枚举的 非symbol属性
+        for (var key in event) {
+            console.log('key', key);
+            obj[key] = event[key];
+        }
+    }
+
+    var salesOffices2 = {};
+    installEvent( salesOffices2 );
+    salesOffices2.listen( 'squareMeter88', function( price ){ // 小明订阅消息
+        console.log( '价格= ' + price );
+    });
+    salesOffices2.listen( 'squareMeter100', function( price ){ // 小红订阅消息
+        console.log( '价格= ' + price );
+    });
+    salesOffices2.trigger( 'squareMeter88', 2000000 ); // 输出： 2000000
+    salesOffices2.trigger( 'squareMeter100', 3000000 ); // 输
+</script>
+增加取消订阅的功能,取消订阅的函数编写中有两处需要注意下
+
 </body>
 </html>
