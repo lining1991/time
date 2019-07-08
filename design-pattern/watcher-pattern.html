@@ -8,7 +8,8 @@
 </head>
 <body>
 定义对象间的一种一对多的依赖关系
-
+<button id="count">点我</button>
+<div id="show"></div>
 ps: 自己先写一个试试
 <script>
     function Publisher () {}
@@ -94,10 +95,14 @@ ps: 自己先写一个试试
                 fns && (fns.length = 0); // 前边已经检测过fns 为什么还要fns前置呢
             }
             // 好好体会下倒序遍历
-            for (var l = fns.length - 1; l>=0; l--;) {
+            // 反向遍历 删除项的时候 不会影响尚未遍历项的索引
+            for (var l = fns.length - 1; l>=0; l--) {
+                console.log('hhhhhhhhhhh')
                 var _fn = fns[l]
-                if (_fn === fn) { // 排断两个函数是否相等 这种场景下是可以认同是对的
-                // 因为添加订阅的时候也并没有考虑重复性 所以这里要全部遍历完
+                console.log(_fn);
+                console.log(fn);
+                if (_fn === fn) { // 排断两个函数是否相等 这样写之所以可以 是因为使用这个发布订阅模式时做好了铺垫
+                // 因为添加订阅的时候也并没有考虑重复性 所以这里要全部遍历完 
                     fns.splice(l, 1);
                 }
             }
@@ -117,13 +122,63 @@ ps: 自己先写一个试试
     salesOffices2.listen( 'squareMeter88', function( price ){ // 小明订阅消息
         console.log( '价格= ' + price );
     });
-    salesOffices2.listen( 'squareMeter100', function( price ){ // 小红订阅消息
+    // fn2成了全局变量
+    salesOffices2.listen( 'squareMeter100', fn2 = function( price ){ // 小红订阅消息
         console.log( '价格= ' + price );
     });
-    salesOffices2.trigger( 'squareMeter88', 2000000 ); // 输出： 2000000
-    salesOffices2.trigger( 'squareMeter100', 3000000 ); // 输
+    salesOffices2.remove('squareMeter100', fn2);
+    salesOffices2.trigger('squareMeter88', 2000000 ); // 输出： 2000000
+    salesOffices2.trigger('squareMeter100', 3000000 ); // 输
 </script>
 增加取消订阅的功能,取消订阅的函数编写中有两处需要注意下
+一个实战的登陆模块，订阅消息的例子
 
+<script>
+    var login = {};
+    installEvent(login);
+    var nav = (function(){ // nav 模块
+        // 值得学习的写法
+        login.listen('loginSucc', function(data){
+            nav.setAvatar('hhh')
+        });
+        
+        return {
+            setAvatar: function( avatar ){
+                console.log( '设置 nav 模块的头像' );
+            }
+        }
+    })();
+    login.trigger('loginSucc');
+</script>
+全局的发布订阅对象(引入全局中介)
+<script>
+    // 待补写
+    Event = {};
+    Event.listen('squareMetter88', function(price){
+        console.log('价格= ' + price);
+    });
+    // 调用方式
+    Event.trigger('squareMetter88', 2000);
+</script>
+模块间通信
+<script>
+    // ps: a和b好像没有必要赋值
+    var a = (function(){
+        var count = 0;
+        var button = document.getElementById("count");
+        button.addEventListener('click', function(){
+            Event.trigger('add', count++);
+        })
+    })();
+    var b = (function(){
+        var div = document.getElementById('show');
+        Event.listen('add', function(count) {
+            div.innerHTML = count;
+        })
+    })();
+</script>
+有意思的来了，必须先订阅再发布吗
+离线事件的声明周期只有一次
+全局事件的命名冲突
 </body>
 </html>
