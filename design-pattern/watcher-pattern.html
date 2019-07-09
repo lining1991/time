@@ -152,6 +152,47 @@ ps: 自己先写一个试试
 </script>
 全局的发布订阅对象(引入全局中介)
 <script>
+    var Event = (function(){
+        var event = {},
+        clientList,
+        listen,
+        remove,
+        trigger;
+        clientList = {};
+        listen = function (key, fn) {
+            // let key = Array.prototype.shift.apply(arguments);
+            if (!clientList[key]) {
+                clientList[key] = []
+            }
+            clientList[key].push(fn);
+        }
+
+        remove = function (key, fn) {
+            var fns = clientList[key];
+            if (!fns) {
+                console.log('没有可移除的订阅')
+                return false;
+            }
+            // 如果没有传入第二个参数 则移除所有key对应的订阅事件
+            if (!fn && fns.length) {
+                fns.length = 0;
+            }
+
+            if (fn) {
+                for (var l = fns.length; l > 0; l--) {
+                    if (fns[l] === fn) {
+                        fns.splice(l, 1);
+                    }
+                }
+            }
+        }
+
+        trigger = function () {
+            var key = Array.prototype.shift.call(arguments);
+            var fns = clientList[key];
+        }
+
+    })();
     // 待补写
     Event = {};
     Event.listen('squareMetter88', function(price){
