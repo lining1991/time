@@ -153,12 +153,11 @@ ps: 自己先写一个试试
 全局的发布订阅对象(引入全局中介)
 <script>
     var Event = (function(){
-        var event = {},
-        clientList,
-        listen,
-        remove,
-        trigger;
-        clientList = {};
+        var clientList = {},
+            listen,
+            remove,
+            trigger;
+        
         listen = function (key, fn) {
             // let key = Array.prototype.shift.apply(arguments);
             if (!clientList[key]) {
@@ -169,6 +168,7 @@ ps: 自己先写一个试试
 
         remove = function (key, fn) {
             var fns = clientList[key];
+            console.log('fns', fn);
             if (!fns) {
                 console.log('没有可移除的订阅')
                 return false;
@@ -179,7 +179,8 @@ ps: 自己先写一个试试
             }
 
             if (fn) {
-                for (var l = fns.length; l > 0; l--) {
+                for (var l = fns.length - 1; l >= 0; l--) {
+                    console.log(fns[l]);
                     if (fns[l] === fn) {
                         fns.splice(l, 1);
                     }
@@ -190,16 +191,37 @@ ps: 自己先写一个试试
         trigger = function () {
             var key = Array.prototype.shift.call(arguments);
             var fns = clientList[key];
+            // var self = this;
+            if (fns.length) {
+                for (var i = 0, fn; fn = fns[i++]; ) {
+                    fn.apply(this, arguments);
+                }
+            }
+        }
+
+        return {
+            listen,
+            trigger,
+            remove
         }
 
     })();
     // 待补写
-    Event = {};
+    // Event = {};
     Event.listen('squareMetter88', function(price){
         console.log('价格= ' + price);
     });
+    Event.listen('squareMetter96', fn96 = function(price){
+        console.log('价格= ' + price);
+    });
+    Event.remove('squareMetter96', fn96);
+    // 这种取消订阅的方式就不行
+    Event.remove('squareMetter88', function(price){
+        console.log('价格= ' + price);
+    })
     // 调用方式
-    Event.trigger('squareMetter88', 2000);
+    Event.trigger('squareMetter88', 88);
+    Event.trigger('squareMetter96', 96);
 </script>
 模块间通信
 <script>
