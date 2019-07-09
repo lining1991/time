@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>发布订阅模式</title>
+</head>
+<body>
+        发布订阅模式属于广义上的观察者模式
+        如果硬要区分的话：
+        发布订阅模式是最常用的一种观察者模式的实现，并且从解耦和重用角度来看，更优于典型的观察者模式
+        发布订阅模式比观察者模式多了一个时间通道（中介）
+定义对象间的一种一对多的依赖关系
+<a href="https://www.cnblogs.com/TomXu/archive/2012/03/02/2355128.html">解决观察订阅</a>
+<a href="https://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/observer.html">另一本讲设计模式的电子书</a>
+
+<button id="count">点我</button>
+<div id="show"></div>
+ps: 自己先写一个试试
+<script>
+    function Publisher () {}
+    Publisher.prototype.listener = {};
+    // 这里限定两个参数不好 应该不写形参 用arguments来取
+    Publisher.prototype.addListener = function(eventName, funcb) {
+        let __self = this;
+        if (typeof funcb === 'function') {
+            if (!this.listener.eventName) { // 这俩地方写错啦 
+                this.listener.eventName = [];
+            } 
+            this.listener.eventName.push(funcb);
+        }
+        // this.listener.push(funcb);
+    }
+    Publisher.prototype.pub = function(eventName, data) {
+        let funcArr = this.listener.eventName;  // 这俩地方写错啦 
+        if (funcArr.length) {
+            funcArr.forEach((fun, index) => {
+                fun(data);
+            });
+        }
+    }
+    let subscribe = new Publisher();
+    subscribe.addListener('click', function(data) {
+        console.log('data', data);
+    });
+    subscribe.addListener('click', function(data) {
+        console.log('data2', data);
+    });
+    let puber = new Publisher();
+</script>
+书中所写
+<script>
+    var officer = {};
+    officer.listener = [];
+    // cb 一个个函数就是一个个订阅者
+    officer.addListener = function (cb) {
+        if (typeof cb === 'function') {
+            this.listener.push(cb);
+        }
+    }
+    officer.trigger = function() {
+        let __self = this;
+        let arg = arguments;
+        // 原书这里用的for循环
+        this.listener.forEach(function(func, index){
+            func.apply(__self, arg);
+        });
+    }
+    officer.addListener(function( price, squareMeter ){ // 小明订阅消息
+        console.log( '价格= ' + price );
+        console.log( 'squareMeter= ' + squareMeter );
+    });
+    officer.trigger('20', '1000');
+</script>
+<script>
+    // 通用写法
+    var event = {
+        clientList: {},
+        listen: function(key, fn){
+            if (!this.clientList[key]) {
+                this.clientList[key] = [];
+            }
+            this.clientList[key].push(fn);
+        },
+        trigger: function(){
+            let name = Array.prototype.shift.apply(arguments);
+            let fns = this.clientList[name];
+            if (fns && fns.length) {
+                for (var i =0, fn; fn = fns[i++];){ // 可选的for循环
+                    fn.apply(this, arguments);
+                }
+            }
+        },
+        remove: function(key, fn){
+            let fns = this.clientList[key];
+            if (!fns) {
+                console.log(`没有此事件(${key}）类型的订阅`);
+                return false;
+            }
+            if (!fn) {
+                fns && (fns.length = 0); // 前边已经检测过fns 为什么还要fns前置呢
+            }
+            // 好好体会下倒序遍历
+            // 反向遍历 删除项的时候 不会影响尚未遍历项的索引
+            for (var l = fns.length - 1; l>=0; l--) {
+                console.log('hhhhhhhhhhh')
+                var _fn = fns[l]
+                console.log(_fn);
+                console.log(fn);
+                if (_fn === fn) { // 排断两个函数是否相等 这样写之所以可以 是因为使用这个发布订阅模式时做好了铺垫
+                // 因为添加订阅的时候也并没有考虑重复性 所以这里要全部遍历完 
+                    fns.splice(l, 1);
+                }
+            }
+        }
+    }
+    // 再定义一个 installEvent 函数，这个函数可以给所有的对象都动态安装发布—订阅功能：
+    function installEvent(obj){
+        // 对象自身的以及可继承的 可枚举的 非symbol属性
+        for (var key in event) {
+            console.log('key', key);
+            obj[key] = event[key];
+        }
+    }
+
+    var salesOffices2 = {};
+    installEvent( salesOffices2 );
+    salesOffices2.listen( 'squareMeter88', function( price ){ // 小明订阅消息
+        console.log( '价格= ' + price );
+    });
+    // fn2成了全局变量
+    salesOffices2.listen( 'squareMeter100', fn2 = function( price ){ // 小红订阅消息
+        console.log( '价格= ' + price );
+    });
+    salesOffices2.remove('squareMeter100', fn2);
+    salesOffices2.trigger('squareMeter88', 2000000 ); // 输出： 2000000
+    salesOffices2.trigger('squareMeter100', 3000000 ); // 输
+</script>
+增加取消订阅的功能,取消订阅的函数编写中有两处需要注意下
+一个实战的登陆模块，订阅消息的例子
+
+<script>
+    var login = {};
+    installEvent(login);
+    var nav = (function(){ // nav 模块
+        // 值得学习的写法
+        login.listen('loginSucc', function(data){
+            nav.setAvatar('hhh')
+        });
+        
+        return {
+            setAvatar: function( avatar ){
+                console.log( '设置 nav 模块的头像' );
+            }
+        }
+    })();
+    login.trigger('loginSucc');
+</script>
+全局的发布订阅对象(引入全局中介)
+<script>
+    var Event = (function(){
+        var clientList = {},
+            listen,
+            remove,
+            trigger;
+        
+        listen = function (key, fn) {
+            // let key = Array.prototype.shift.apply(arguments);
+            if (!clientList[key]) {
+                clientList[key] = []
+            }
+            clientList[key].push(fn);
+        }
+
+        remove = function (key, fn) {
+            var fns = clientList[key];
+            console.log('fns', fn);
+            if (!fns) {
+                console.log('没有可移除的订阅')
+                return false;
+            }
+            // 如果没有传入第二个参数 则移除所有key对应的订阅事件
+            if (!fn && fns.length) {
+                fns.length = 0;
+            }
+
+            if (fn) {
+                for (var l = fns.length - 1; l >= 0; l--) {
+                    console.log(fns[l]);
+                    if (fns[l] === fn) {
+                        fns.splice(l, 1);
+                    }
+                }
+            }
+        }
+
+        trigger = function () {
+            var key = Array.prototype.shift.call(arguments);
+            var fns = clientList[key];
+            // var self = this;
+            if (fns.length) {
+                for (var i = 0, fn; fn = fns[i++]; ) {
+                    fn.apply(this, arguments);
+                }
+            }
+        }
+
+        return {
+            listen,
+            trigger,
+            remove
+        }
+
+    })();
+    // 待补写
+    // Event = {};
+    Event.listen('squareMetter88', function(price){
+        console.log('价格= ' + price);
+    });
+    Event.listen('squareMetter96', fn96 = function(price){
+        console.log('价格= ' + price);
+    });
+    Event.remove('squareMetter96', fn96);
+    // 这种取消订阅的方式就不行
+    Event.remove('squareMetter88', function(price){
+        console.log('价格= ' + price);
+    })
+    // 调用方式
+    Event.trigger('squareMetter88', 88);
+    Event.trigger('squareMetter96', 96);
+</script>
+模块间通信
+<script>
+    // ps: a和b好像没有必要赋值
+    var a = (function(){
+        var count = 0;
+        var button = document.getElementById("count");
+        button.addEventListener('click', function(){
+            Event.trigger('add', count++);
+        })
+    })();
+    var b = (function(){
+        var div = document.getElementById('show');
+        Event.listen('add', function(count) {
+            div.innerHTML = count;
+        })
+    })();
+</script>
+有意思的来了，必须先订阅再发布吗
+离线事件的声明周期只有一次
+全局事件的命名冲突
+</body>
+</html>

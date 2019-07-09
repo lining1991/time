@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>防抖</title>
+</head>
+<body>
+    在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时
+    使用场景: input搜索联想输入，可以节省ajax
+    <script>
+        function debounce (fn, time = 1000) {
+            // var fn = Array.prototype.shift.call(arguments);
+            var T;
+            return function () {
+                var context = this;
+                clearTimeout(T)
+                T = setTimeout(function(){
+                    fn.apply(context, arguments);
+                }, 1000)
+            }
+            // setTimeout(fn, time);
+        }
+    </script>
+</body>
+</html>
