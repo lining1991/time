@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
+    <script src="https://unpkg.com/vue@2.1.8/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuex"></script>
+    <script>
+        // 对于模块内部的 mutation 和 getter，接收的第一个参数是模块的局部状态对象。
+        const moduleA = {
+            state: {count: 0},
+            actions: {
+                // 根节点状态
+                incrementIfOddOnRootSum ({state, commit, rootState}) {
+                    if ((state.count + rootState.count) % 2 === 1) {
+                        commit('increment')
+                    }
+                }
+            },
+            mutations: {
+                increment (state) {
+                    state.count ++;
+                }
+            },
+            getters: {
+                doubleCount (state) {
+                    return state.count * 2;
+                },
+                // 根节点状态会作为第三个参数爆料出来
+                sumWithRootCount (state, getters, rootState) {
+                    return state.count + rootState.count;
+                }
+            }
+        }
+        const moduleB = {
+            state: {},
+            actions: {},
+            mutations: {},
+            getters: {}
+        }
+        const store = new Vuex.store({
+            modules: {
+                a: moduleA,
+                b: moduleB
+            }
+        })
+        // store.state.a
+        // store.state.b
+        // 命名空间
+        // 默认情况下，模块内部的 action、mutation 和 getter是注册在全局命名空间的——
+        // 这样使得多个模块能够对同一 mutation 或 action 作出响应。
+        // 如果希望你的模块具有更高的封装度和复用性，你可以通过添加 namespaced: true 的方式使其成为带命名空间的模块。
+        // 当模块被注册后，它的所有 getter、action 及 mutation 都会自动根据模块注册的路径调整命名。
+        const store = new Vuex.store({
+            modules: {
+                account: {
+                    namespaced: true,
+                    state: {},
+                    getters: 
+                }
+            }
+        })
+    </script>
+</body>
+</html>

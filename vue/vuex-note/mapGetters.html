@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>学习vuex</title>
+</head>
+<body>
+<pre>
+    模块化的打包系统中需要显示安卓vuex
+    import Vue from 'vue'
+    import Vuex from 'vuex'
+    Vue.use(Vuex)
+    从store实例中读取状态 计算属性
+    store选项全局注入
+    mapState辅助函数：
+    1️⃣解决一个组件需要获取多个状态时候，将这些状态都声明为计算属性时显得重复和冗余的局面
+    2️⃣帮助我们生成计算属性
+    对象展开运算符: <b>...</b>
+    组件仍然保有局部状态：
+    1️⃣使用vuex并不意味着要把所有的状态都放入，
+    2️⃣如果有些状态严格属于单个组件，最好还是作为组件的局部状态
+    Getter:
+    1️⃣可以认为是store的计算属性
+    2️⃣就像计算属性一样，getter的返回值会根据它的依赖被缓存起来，且只有当它的依赖值发生了改变时才会被重新计算
+    3️⃣getter接受state作为其第一个参数
+    4️⃣可以通过属性访问getter
+    5️⃣也可以通过方法访问（注意通过方法访问时每次都会调用，不会缓存结果）通过方法访问的目的是为了可以给getter传参数
+    mapGetter辅助函数：
+    仅仅是将store中的getter映射到局部计算属性
+    与mapState感觉还是很不一样的
+    参数是一个数组或者对象
+
+</pre>
+    <div id="app">
+        <!-- <counter></counter> -->
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
+    <script src="https://unpkg.com/vue@2.1.8/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuex"></script>
+    <script>
+        const mapState = Vuex.mapState;
+        const mapGetters = Vuex.mapGetters;
+        const store = new Vuex.Store({
+            state: {
+                count: 0,
+                name: '李宁的记事本',
+                todos: [
+                    {id: 1, text: '这一条已经完成了啦啦啦', done: true},
+                    {id: 2, text: '这一条还没有完成', done: false},
+                    {id: 3, text: '今天好好学习很棒哦', done: true}
+                ]
+            },
+            mutations: {
+                increment (state) {
+                    state.count++;
+                }
+            },
+            getters: {
+                // 接受state作为第一个参数
+                doneTodos: state => {
+                    return state.todos.filter(todo => todo.done)
+                },
+                // 也可以接受其他getter作为第二个参数 其他getter? 指的是getters配置项中的其他键值
+                // 注意这里是直接调用的getters 而不是this.getters
+                doneTodosCount (state, getters) {
+                    return getters.doneTodos.length;
+                },
+                // 箭头函数的写法
+                // getTodoById: (state) => (id) =>  state.todos.find(todo => todo.id=== id), 
+                // 原始写法
+                getTodoById: function (state) {
+                    return function (id) {
+                        return state.todos.find(todo => todo.id=== id)
+                    }
+                }
+            }
+        });
+        // 创建一个counter组件
+        const counter = {
+            data () {
+                return {
+                    localCount: 2,
+                    result: {}
+                }
+            },
+            template: `
+                <div>
+                    <div>{{count}}</div>
+                    <div>{{countPlusLocalState}}</div>
+                    <button @click="increment">点击我</button>
+                    <div><b>{{nameAlias}}</b></div>
+                    <div v-for="item in todos" :key="item.id" >{{item.text}}</div>
+                    <div><b>已经完成的事项</b> 个数{{doneTodosCount}}</div>
+                    <div v-for="item in doneTodos" :key="item.id" >{{item.text}}</div>
+                    <button @click="findTodoById">点我随机显示一条todo</button> 
+                    <div>{{result.text}}<div>
+                    {{doneCount}}
+                </div>
+            `,
+            computed: {
+                localComputed () {},
+                // 没有用mapState时最原始的写法
+                // todos () {
+                //     return this.$store.state.todos;
+                // },
+                // Getter会暴露为store.getters对象 可以以属性的形式访问这些值
+                // doneTodos () {
+                //     return this.$store.getters.doneTodos;  
+                // },
+                doneTodosCount () {
+                    return this.$store.getters.doneTodosCount;
+                },
+                // 注意这里的参数是一个数组 使用对象展开运算符将getter 混入 computed 对象中
+                ...mapGetters([
+                    'doneTodos',
+                ]),
+                // 如果想将一个getter属性另取一个名字，使用对象形式
+                ...mapGetters({
+                    doneCount: 'doneTodosCount'
+                }),
+                ...mapState({
+                    todos: 'todos',
+                    // 第一种形式的写法
+                    count: state => state.count,
+                    // 第二种形式的写法  这种的简介感觉好强大
+                    nameAlias: 'name',
+                    countPlusLocalState (state) {
+                        return state.count + this.localCount
+                    }
+                })
+            },
+            methods: {
+                increment () {
+                    this.$store.commit('increment');
+                },
+                findTodoById () {
+                    this.result = this.$store.getters.getTodoById(1);
+                }
+            }
+        } 
+        // console.log(store.state.count);
+        new Vue({
+            el: '#app',
+            // 把store对象提供给"store"选项, 这可以把 store 的实例注入所有的子组件
+            store,
+            data () {
+                return {
+                    // count: 0
+                }
+            },
+            components: {counter},
+            methods: {
+                // increment () {
+                //     store.commit('increment')
+                // }
+            },
+            template: `
+                <div class="app"> 
+                    <counter></counter>
+                    哈喽这是用模板渲染出来的
+                </div>
+            `
+            
+        });
+        
+    </script>
+</body>
+</html>

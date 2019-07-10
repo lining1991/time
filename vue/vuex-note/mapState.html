@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>学习vuex</title>
+</head>
+<body>
+<pre>
+    模块化的打包系统中需要显示安卓vuex
+    import Vue from 'vue'
+    import Vuex from 'vuex'
+    Vue.use(Vuex)
+    从store实例中读取状态 计算属性
+    store选项全局注入
+    mapState辅助函数：
+    1️⃣解决一个组件需要获取多个状态时候，将这些状态都声明为计算属性时显得重复和冗余的局面
+    2️⃣帮助我们生成计算属性
+    对象展开运算符: <b>...</b>
+    组件仍然保有局部状态：使用vuex并不意味着要把所有的状态都放入，如果有些状态严格属于单个组件，最好还是作为组件的局部状态
+
+</pre>
+    <div id="app">
+        <!-- <counter></counter> -->
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
+    <script src="https://unpkg.com/vue@2.1.8/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuex"></script>
+    <script>
+        const mapState = Vuex.mapState;
+        const store = new Vuex.Store({
+            state: {
+                count: 0,
+                name: '李宁'
+            },
+            mutations: {
+                increment (state) {
+                    state.count++;
+                }
+            }
+        });
+        // 创建一个counter组件
+        const counter = {
+            data () {
+                return {
+                    localCount: 2
+                }
+            },
+            template: `
+                <div>
+                    <div>{{count}}</div>
+                    <div>{{countPlusLocalState}}</div>
+                    <div>{{nameAlias}}</div>
+                    <button @click="increment">点击我</button>
+                </div>
+            `,
+            computed: {
+                localComputed () {},
+                ...mapState({
+                    // 第一种形式的写法
+                    count: state => state.count,
+                    // 第二种形式的写法  这种的简介感觉好强大
+                    nameAlias: 'name',
+                    countPlusLocalState (state) {
+                        return state.count + this.localCount
+                    }
+                })
+            },
+            methods: {
+                increment () {
+                    this.$store.commit('increment');
+                }
+            }
+        } 
+        // console.log(store.state.count);
+        new Vue({
+            el: '#app',
+            // 把store对象提供给"store"选项, 这可以把 store 的实例注入所有的子组件
+            store,
+            data () {
+                return {
+                    // count: 0
+                }
+            },
+            components: {counter},
+            methods: {
+                // increment () {
+                //     store.commit('increment')
+                // }
+            },
+            template: `
+                <div class="app"> 
+                    <counter></counter>
+                    哈喽这是用模板渲染出来的
+                </div>
+            `
+            
+        });
+        
+    </script>
+</body>
+</html>

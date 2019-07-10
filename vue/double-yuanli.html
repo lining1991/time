@@ -16,7 +16,11 @@
     <div class="cell">
         <div class="text" v-text="myText"></div>
         <div class="text" v-text="myText"></div>
-        <input class="input" type="text" v-model="myText" >
+        <input class="input" type="text" v-model="myText" placeholder="啊哈哈哈">
+    </div>
+    <div class="class" v-text="page.title">
+    </div>
+    <div class="class" v-text="page.body">
     </div>
 </div>
 <script>
@@ -45,6 +49,7 @@
                 val = data[key]
 
                 if (typeof val === 'object') {
+                    console.log('递归遍历', val);
                     // 递归遍历
                     this._observe(val);
                 }
@@ -125,7 +130,11 @@
     const app = new MyVue({
         el : '#app' ,
         data : {
-            myText : 'hello world'
+            myText : 'hello world',
+            page: {
+                title: '这里是一个小苹',
+                body: '小苹果呀小苹果'
+            }
         }
     })
 //  ?可是最开始给div的值咋没了
