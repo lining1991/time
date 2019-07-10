@@ -2,3 +2,4 @@
 - [ ] 优化发布订阅模式代码（设置传入函数的ID 便于取消订阅的时候使用）
 - [ ] 用TS实现一遍防抖和节流
 - [ ] [TSLint用于工程化时的配置](https://ts.xcatliu.com/engineering/lint) 源于vue-hello vuex-learn分支
+- [ ] AST [最基础](https://segmentfault.com/a/1190000016231512?utm_source=tag-newest)
