@@ -7,21 +7,37 @@
     <title>防抖</title>
 </head>
 <body>
-    在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时
-    使用场景: input搜索联想输入，可以节省ajax
+    在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时 <br>
+    可以粗暴的理解为如果触发的超级超级频繁，那么只有停止触发一段时间内，才会执行一次。<br>
+    使用场景: input搜索联想输入，可以节省ajax  <br>
+    <input type="text" placeholder="防抖测试，请输入文字" id="input">
+    <pre>
+        记忆点：
+        函数就两个参数 时间默认赋值
+        保存执行环境 保存参数
+        总是先清除定时器
+        记住调用的方式
+    </pre>
+    可以采用箭头函数就不用保存this了
     <script>
         function debounce (fn, time = 1000) {
             // var fn = Array.prototype.shift.call(arguments);
             var T;
             return function () {
                 var context = this;
+                var arg = arguments;
                 clearTimeout(T)
                 T = setTimeout(function(){
-                    fn.apply(context, arguments);
+                    fn.apply(context, arg);
                 }, 1000)
             }
             // setTimeout(fn, time);
         }
+        var $el = document.getElementById('input');
+        // var de
+        $el.addEventListener('input', debounce(function name(event) {
+            console.log(event.target.value);
+        }));
     </script>
 </body>
 </html>

@@ -10,9 +10,11 @@
 <!-- <input v-model="message" placeholder="edit me">
 <p>Message is: {{ message }}</p> -->
 <a href="https://www.cnblogs.com/shuqiao/p/9927310.html">深入理解对象的数据属性与访问器属性及属性间相互转换</a>
+先手抄一版
 <div id="app">
     <h3>数据的双向绑定</h3>
     <div class="cell">
+        <div class="text" v-text="myText"></div>
         <div class="text" v-text="myText"></div>
         <input class="input" type="text" v-model="myText" >
     </div>

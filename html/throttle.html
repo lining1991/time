@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>节流</title>
+    <style>
+        div {
+            height: 10000px;
+            background: yellowgreen;
+        }
+    </style>
+</head>
+<body>
+    <pre>
+        节流：某个时间间隔内只执行一次
+        使用场景：滚动事件 resize事件等
+        记忆点：
+        上来就清除定时器
+        小于某个时间就过段时间再执行（这个能保证至少执行一次），否则就立即执行
+    </pre>
+    <div></div>
+    <script>
+        function throttle (fn, time = 1000){
+            var lastTime = new Date();
+            var T = 0;
+            return function () {
+                // var context = this;
+                var arg = arguments;
+                // var lastTime = currentTime;
+                var currentTime = new Date();
+                clearTimeout(T);
+                if (currentTime - lastTime < time) {
+                    T = setTimeout(() => {
+                        fn.apply(this, arg);
+                        lastTime = new Date();
+                    }, time);
+                } else {
+                    fn.apply(this, arg);
+                    lastTime = currentTime;
+                    // 等价于lastTime = new Date()
+                }
+            }
+        }
+        window.addEventListener('scroll', throttle(function(event){
+            console.log('11111111111');
+        }, 100));
+    </script>
+</body>
+</html>
